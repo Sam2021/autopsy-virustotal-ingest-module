@@ -34,7 +34,7 @@ class VTScannerModule(FileIngestModule):
 
     def __init__(self):
         self.logger = Logger.getLogger("VTScanner")
-        self.api_key = "40e06f563f64ce2fa251d6e3feb58095090634caa677919aacf54da0177c9d80"
+        self.api_key = "API_key"
 
     def startUp(self, context):
         if not self.api_key:
