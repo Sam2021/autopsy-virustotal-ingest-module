@@ -1,0 +1,80 @@
+# -*- coding: utf-8 -*-
+
+from org.sleuthkit.autopsy.ingest import IngestModuleFactoryAdapter, FileIngestModule, IngestModuleIngestJobSettings
+from org.sleuthkit.autopsy.ingest import IngestModuleReferenceCounter
+from org.sleuthkit.datamodel import AbstractFile
+from org.sleuthkit.autopsy.coreutils import Logger
+from org.sleuthkit.datamodel import ReadContentInputStream
+
+
+import hashlib
+import json
+import urllib2
+from jarray import zeros
+from java.lang import Byte
+
+class VTScannerModuleFactory(IngestModuleFactoryAdapter):
+
+    def getModuleDisplayName(self):
+        return "VirusTotal Hash Checker"
+
+    def getModuleDescription(self):
+        return "Checks file hash against VirusTotal API"
+
+    def getModuleVersionNumber(self):
+        return "1.0"
+
+    def isFileIngestModuleFactory(self):
+        return True
+
+    def createFileIngestModule(self, settings):
+        return VTScannerModule()
+
+class VTScannerModule(FileIngestModule):
+
+    def __init__(self):
+        self.logger = Logger.getLogger("VTScanner")
+        self.api_key = "40e06f563f64ce2fa251d6e3feb58095090634caa677919aacf54da0177c9d80"
+
+    def startUp(self, context):
+        if not self.api_key:
+            self.logger.logError("VirusTotal API key not set")
+            return
+
+    def process(self, file):
+        if not file.isFile() or file.getSize() == 0:
+            return FileIngestModule.ProcessResult.OK
+
+        sha256_hash = self.compute_sha256(file)
+        url = "https://www.virustotal.com/api/v3/files/" + sha256_hash
+        headers = {
+            "x-apikey": self.api_key
+        }
+
+        try:
+            req = urllib2.Request(url, headers=headers)
+            response = urllib2.urlopen(req)
+            json_data = json.load(response)
+
+            stats = json_data["data"]["attributes"]["last_analysis_stats"]
+            total_detections = stats["malicious"]
+
+            self.logger.logInfo("VT Hash: {} - Malicious detections: {}".format(sha256_hash, total_detections))
+        except Exception as e:
+            self.logger.logError("VirusTotal request failed: " + str(e))
+
+        return FileIngestModule.ProcessResult.OK
+
+    def compute_sha256(self, file):
+        stream = ReadContentInputStream(file)
+        sha256 = hashlib.sha256()
+        
+        # Read in chunks
+        buffer_size = 8192
+        while True:
+            data = stream.read(buffer_size)
+            if not data:
+                break
+            sha256.update(data)
+
+        return sha256.hexdigest()
