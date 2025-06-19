@@ -36,7 +36,9 @@ class VTScannerModule(FileIngestModule):
 
     def __init__(self):
         self.logger = Logger.getLogger("VTScanner")
+
         self.api_key = "YOUR_API_KEY"
+
 
     def startUp(self, context):
         if not self.api_key:
@@ -77,6 +79,7 @@ class VTScannerModule(FileIngestModule):
         BUFFER_SIZE = 8192
 
         stream = ReadContentInputStream(file)
+
         digest = hashlib.sha256()
 
         try:
@@ -90,3 +93,4 @@ class VTScannerModule(FileIngestModule):
             stream.close()
 
         return digest.hexdigest()
+
