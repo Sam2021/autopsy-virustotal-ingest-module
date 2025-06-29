@@ -1,19 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from org.sleuthkit.autopsy.ingest import IngestModuleFactoryAdapter, FileIngestModule, IngestModuleIngestJobSettings
-from org.sleuthkit.autopsy.ingest import IngestModuleReferenceCounter
+from org.sleuthkit.autopsy.ingest import IngestModuleFactoryAdapter, FileIngestModule
 from org.sleuthkit.datamodel import AbstractFile
 from org.sleuthkit.autopsy.coreutils import Logger
 from org.sleuthkit.datamodel import ReadContentInputStream
-
+from org.sleuthkit.autopsy.casemodule import Case
 
 import hashlib
 import json
 import urllib2
-from jarray import zeros
-from java.lang import Byte
-from java.io import ByteArrayOutputStream
-
+import vt_blackboard_helper  # Custom helper for artifact & tags
 
 class VTScannerModuleFactory(IngestModuleFactoryAdapter):
 
@@ -32,13 +28,12 @@ class VTScannerModuleFactory(IngestModuleFactoryAdapter):
     def createFileIngestModule(self, settings):
         return VTScannerModule()
 
+
 class VTScannerModule(FileIngestModule):
 
     def __init__(self):
         self.logger = Logger.getLogger("VTScanner")
-
-        self.api_key = "YOUR_API_KEY"
-
+        self.api_key = "40e06f563f64ce2fa251d6e3feb58095090634caa677919aacf54da0177c9d80"
 
     def startUp(self, context):
         if not self.api_key:
@@ -64,12 +59,22 @@ class VTScannerModule(FileIngestModule):
             total_detections = stats.get("malicious", 0)
             file_name = file.getName()
 
-            if total_detections > 0:
+            is_malicious = total_detections > 0
+
+            if is_malicious:
                 self.logger.severe("[MALICIOUS] File: {} | SHA256: {} | Detections: {}".format(
                     file_name, sha256_hash, total_detections))
             else:
                 self.logger.info("[CLEAN] File: {} | SHA256: {} | Detections: {}".format(
                     file_name, sha256_hash, total_detections))
+
+            # Post results to blackboard
+            vt_blackboard_helper.post_virustotal_artifact(file, sha256_hash, total_detections, is_malicious)
+
+            # Optional: Tag malicious files
+            if is_malicious:
+                vt_blackboard_helper.tag_file(file, "VT: Malicious")
+
         except Exception as e:
             self.logger.severe("VirusTotal request failed: " + str(e))
 
@@ -93,4 +98,3 @@ class VTScannerModule(FileIngestModule):
             stream.close()
 
         return digest.hexdigest()
-
