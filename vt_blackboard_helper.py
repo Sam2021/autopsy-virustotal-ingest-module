@@ -2,7 +2,7 @@
 
 from org.sleuthkit.datamodel import BlackboardArtifact, BlackboardAttribute
 
-def post_virustotal_artifact(file, detections, vt_url, logger):
+def post_virustotal_artifact(file,sha256_hash, detections, vt_url, logger):
     try:
         artifact = file.newArtifact(BlackboardArtifact.ARTIFACT_TYPE.TSK_INTERESTING_FILE_HIT)
 
@@ -12,7 +12,11 @@ def post_virustotal_artifact(file, detections, vt_url, logger):
                 "VirusTotalModule",
                 "VirusTotal Detection"
             ),
-            
+             BlackboardAttribute(
+                BlackboardAttribute.ATTRIBUTE_TYPE.TSK_HASH_SHA2_256.getTypeID(),
+                "VirusTotalModule",
+                format(sha256_hash)
+            ),
             BlackboardAttribute(
                 BlackboardAttribute.ATTRIBUTE_TYPE.TSK_COMMENT.getTypeID(),
                 "VirusTotalModule",

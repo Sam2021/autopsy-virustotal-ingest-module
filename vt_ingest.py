@@ -7,6 +7,8 @@ from org.sleuthkit.datamodel import AbstractFile
 from org.sleuthkit.autopsy.coreutils import Logger
 from org.sleuthkit.datamodel import ReadContentInputStream
 from org.sleuthkit.autopsy.casemodule import Case
+from vt_tag import tag_file_with_vt_status
+
 
 # Standard Library Imports
 import hashlib
@@ -40,7 +42,7 @@ class VTScannerModule(FileIngestModule):
 
     def __init__(self):
         self.logger = Logger.getLogger("VTScanner")
-        self.api_key = "40e06f563f64ce2fa251d6e3feb58095090634caa677919aacf54da0177c9d80"
+        self.api_key = "API_KEY"
 
     def startUp(self, context):
         if not self.api_key:
@@ -77,7 +79,10 @@ class VTScannerModule(FileIngestModule):
 
                 # ✅ Call external artifact poster
                 report_url = "https://www.virustotal.com/gui/file/" + sha256_hash
-                post_virustotal_artifact(file, total_detections, report_url, self.logger)
+                post_virustotal_artifact(file,sha256_hash, total_detections, report_url, self.logger)
+                
+                # ✅ Add VT Tag
+                tag_file_with_vt_status(file, total_detections, sha256_hash, report_url, self.logger)
 
 
         except urllib2.HTTPError as e:
