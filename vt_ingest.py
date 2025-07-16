@@ -7,6 +7,10 @@ from org.sleuthkit.datamodel import AbstractFile
 from org.sleuthkit.autopsy.coreutils import Logger
 from org.sleuthkit.datamodel import ReadContentInputStream
 from org.sleuthkit.autopsy.casemodule import Case
+from org.sleuthkit.autopsy.ingest import IngestServices, IngestMessage
+from java.io import File
+
+
 from vt_tag import tag_file_with_vt_status
 
 
@@ -19,14 +23,22 @@ from jarray import zeros  # For Java byte[] buffer
 # ✅ Import external artifact helper
 from vt_blackboard_helper import post_virustotal_artifact
 
+from vt_reporter import VTReporter
+
+
 # Factory class that registers the module with Autopsy
 class VTScannerModuleFactory(IngestModuleFactoryAdapter):
 
     def getModuleDisplayName(self):
-        return "VirusTotal Hash Checker"
+        return "VirusTotal Malware Scanner"
 
     def getModuleDescription(self):
-        return "Checks file hash against VirusTotal API"
+        return (
+            "Checks SHA-256 hashes of files against the VirusTotal database. "
+            "Flags malicious files based on detection count and generates CSV, JSON, "
+            "and HTML reports in the case's report directory. VirusTotal links are included "
+            "for each malicious file."
+        )
 
     def getModuleVersionNumber(self):
         return "1.0"
@@ -42,12 +54,39 @@ class VTScannerModule(FileIngestModule):
 
     def __init__(self):
         self.logger = Logger.getLogger("VTScanner")
-        self.api_key = "API_KEY"
+        self.api_key = "40e06f563f64ce2fa251d6e3feb58095090634caa677919aacf54da0177c9d80"
+        self.reporter = None
 
     def startUp(self, context):
         if not self.api_key:
             self.logger.severe("VirusTotal API key not set")
             return
+        case = Case.getCurrentCase()
+        report_dir = case.getReportDirectory()
+        self.reporter = VTReporter(report_dir, self.logger)
+        report_subdir = File(Case.getCurrentCase().getReportDirectory(), "VirusTotal")
+        report_subdir.mkdirs()
+        self.reporter = VTReporter(report_subdir.getAbsolutePath(), self.logger)
+
+    def shutDown(self):
+        if self.reporter:
+            self.reporter.export()
+
+            services = IngestServices.getInstance()
+
+            # Show file paths to user in message
+            message = "VirusTotal reports generated:\n\n"
+            message += "📄 HTML: {}\n".format(self.reporter.html_file)
+            message += "📄 CSV: {}\n".format(self.reporter.csv_file)
+            message += "📄 JSON: {}\n".format(self.reporter.json_file)
+
+            # Post the message in the ingest inbox
+            services.postMessage(IngestMessage.createMessage(
+                IngestMessage.MessageType.INFO,
+                "VirusTotal Scanner",
+                message
+            ))
+
 
     def process(self, file):
         if not file.isFile() or file.getSize() == 0:
@@ -72,6 +111,9 @@ class VTScannerModule(FileIngestModule):
             total_detections = stats.get("malicious", 0)
             file_name = file.getName()
             is_malicious = total_detections > 0
+            file_path = file.getParentPath()
+            
+
 
             if is_malicious:
                 self.logger.severe("[MALICIOUS] File: {} | SHA256: {} | Detections: {}".format(
@@ -83,7 +125,7 @@ class VTScannerModule(FileIngestModule):
                 
                 # ✅ Add VT Tag
                 tag_file_with_vt_status(file, total_detections, sha256_hash, report_url, self.logger)
-
+                self.reporter.add_entry(file_name, file_path, total_detections, sha256_hash, report_url)
 
         except urllib2.HTTPError as e:
             if e.code == 404:
