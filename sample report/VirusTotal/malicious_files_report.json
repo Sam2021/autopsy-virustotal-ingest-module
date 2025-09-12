@@ -1,0 +1,23 @@
+[
+    {
+        "file_path": "/testing/", 
+        "sha256": "706fce69fea67622b03fafb51ece076c1fdd38892318f8cce9f2ec80aabca822", 
+        "vt_url": "https://www.virustotal.com/gui/file/706fce69fea67622b03fafb51ece076c1fdd38892318f8cce9f2ec80aabca822", 
+        "file_name": "Bumerang.exe", 
+        "detections": 62
+    }, 
+    {
+        "file_path": "/testing/", 
+        "sha256": "275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f", 
+        "vt_url": "https://www.virustotal.com/gui/file/275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f", 
+        "file_name": "eicar.txt", 
+        "detections": 65
+    }, 
+    {
+        "file_path": "/testing/", 
+        "sha256": "1dacdc296fd6ef6ba817b184cce9901901c47c01d849adfa4222bfabfed61838", 
+        "vt_url": "https://www.virustotal.com/gui/file/1dacdc296fd6ef6ba817b184cce9901901c47c01d849adfa4222bfabfed61838", 
+        "file_name": "HawkEye.exe", 
+        "detections": 64
+    }
+]

@@ -1,0 +1,45 @@
+﻿Created By AccessData® FTK® Imager 4.7.1.2 
+
+Case Information: 
+Acquired using: ADI4.7.1.2
+Case Number: 123
+Evidence Number:  
+Unique Description: 
+Examiner:  
+Notes:  
+
+--------------------------------------------------------------
+
+Information for C:\Users\legion\Documents\e01testfile:
+
+Physical Evidentiary Item (Source) Information:
+[Device Info]
+ Source Type: Physical
+[Drive Geometry]
+ Cylinders: 8
+ Tracks per Cylinder: 255
+ Sectors per Track: 63
+ Bytes per Sector: 512
+ Sector Count: 129,344
+[Physical Drive Information]
+ Drive Model: VendorCo ProductCode USB Device
+ Drive Serial Number: 9207067958178924085
+ Drive Interface Type: USB
+ Removable drive: True
+ Source data size: 63 MB
+ Sector count:    129344
+[Computed Hashes]
+ MD5 checksum:    53adb6e6938142a2d7f46deb9850ee02
+ SHA1 checksum:   d17d76ddf16dbe5cbd7701592adb19562f2762d8
+
+Image Information:
+ Acquisition started:   Fri Sep 12 16:33:52 2025
+ Acquisition finished:  Fri Sep 12 16:34:16 2025
+ Segment list:
+  C:\Users\legion\Documents\e01testfile.E01
+
+Image Verification Results:
+ Verification started:  Fri Sep 12 16:34:16 2025
+ Verification finished: Fri Sep 12 16:34:16 2025
+ MD5 checksum:    53adb6e6938142a2d7f46deb9850ee02 : verified
+ SHA1 checksum:   d17d76ddf16dbe5cbd7701592adb19562f2762d8 : verified
