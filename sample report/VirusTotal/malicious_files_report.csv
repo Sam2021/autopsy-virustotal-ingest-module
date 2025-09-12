@@ -1,0 +1,4 @@
+file_path,sha256,vt_url,file_name,detections
+/testing/,706fce69fea67622b03fafb51ece076c1fdd38892318f8cce9f2ec80aabca822,https://www.virustotal.com/gui/file/706fce69fea67622b03fafb51ece076c1fdd38892318f8cce9f2ec80aabca822,Bumerang.exe,62
+/testing/,275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f,https://www.virustotal.com/gui/file/275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f,eicar.txt,65
+/testing/,1dacdc296fd6ef6ba817b184cce9901901c47c01d849adfa4222bfabfed61838,https://www.virustotal.com/gui/file/1dacdc296fd6ef6ba817b184cce9901901c47c01d849adfa4222bfabfed61838,HawkEye.exe,64
